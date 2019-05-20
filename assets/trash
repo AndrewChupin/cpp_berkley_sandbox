@@ -1,0 +1,180 @@
+
+/*
+ * Loop connestion select
+void TcpSocket::loop() {
+    ssize_t readResult;
+    ssize_t writeCount;
+    fd_set myset;
+    timeval tv {};
+    int connectDesc;
+    socklen_t lon;
+    int valopt;
+
+    auto *readBuffer = new ByteBuffer();
+    while (true) {
+        tv.tv_sec = 3;
+        tv.tv_usec = 0;
+
+        FD_ZERO(&myset);
+        FD_SET(mSocket, &myset);
+
+        connectDesc = select(mSocket + 1, nullptr, &myset, nullptr, &tv);
+
+        if (connectDesc < 0 && errno != EINTR) {
+            LOG_D("Error select");
+            closeConnection();
+            return;
+        }
+
+        if (connectDesc == 0) {
+            LOG_D("Waiting for connect");
+            continue;
+        }
+
+        LOG_D("Socket selected for write");
+
+        lon = sizeof(int);
+        if (getsockopt(mSocket, SOL_SOCKET, SO_ERROR, (void*) (&valopt), &lon) < 0) {
+            fprintf(stderr, "Error in getsockopt() %d - %s\n", errno, strerror(errno));
+            closeConnection();
+            return;
+        }
+
+        if (valopt) {
+            fprintf(stderr, "Error in delayed connection() %d - %s\n", valopt, strerror(valopt));
+            closeConnection();
+            return;
+        }
+
+        break;
+    }
+
+    while (mSocket > 0) {
+        readResult = recv(mSocket, readBuffer->bytes, DEFAULT_BUFFER_SIZE, 0);
+        if (readResult >= 0) {
+            printf("Receive message with size: %zi\n", readResult);
+            printf("Received message content: %s\n", readBuffer->bytes);
+        } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // TODO
+        } else {
+            printf("Error while reading%zi\n", readResult);
+            delete readBuffer;
+            destroy();
+            return;
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
+
+void TcpSocket::io(struct ev_loop *loop, ev_io *watcher, int events) {
+    ev_io_stop(loop, watcher);
+
+    if (events & EV_WRITE) {
+        ev_io_set(watcher, watcher->fd, EV_READ);
+
+        std::string filePath = "/Users/andrew/CLionProject/socket/assets/lake.jpg";
+        std::ifstream file(filePath, std::ifstream::binary);;
+
+        if (!file.is_open()) {
+            printf("Can't open file\n");
+            // TODO CLOSE CONNECTION
+            ev_loop_destroy(loop);
+            return;
+        }
+
+        struct stat status {};
+        stat(filePath.c_str(), &status);
+
+        int64_t total_size = status.st_size;
+        size_t chunk_size = 1024*64;
+
+        size_t total_chunks = total_size / chunk_size;
+        size_t last_chunk_size = total_size % chunk_size;
+
+        if (last_chunk_size != 0) {
+            ++total_chunks;
+        } else {
+            last_chunk_size = chunk_size;
+        }
+
+        for (size_t chunk = 0; chunk < total_chunks; ++chunk) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            size_t this_chunk_size = chunk == total_chunks - 1 ? last_chunk_size : chunk_size;
+
+            std::vector<char> chunk_data(this_chunk_size);
+            file.read(&chunk_data[0], this_chunk_size);
+
+            std::cout << "chunk #" << chunk << std::endl;
+
+            ssize_t writeResult = send(watcher->fd, &chunk_data[0], this_chunk_size, 0);
+
+            if (writeResult >= 0) {
+                printf("Sent message with size: %zi\n", writeResult);
+                printf("Sent message content: %s\n", &chunk_data[0]);
+            } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                printf("Error while reading EAGAIN or EWOULDBLOCK %zi\n", writeResult);
+                ev_loop_destroy(loop);
+                // TODO CLOSE CONNECTION
+                return;
+            } else {
+                printf("Error while sending%zi\n", writeResult);
+                ev_loop_destroy(loop);
+                // TODO CLOSE CONNECTION
+                return;
+            }
+
+            std::cout << std::endl;
+        }
+
+        // ev_io_start(loop, watcher);
+
+        ev_loop_destroy(loop);
+    } else if (events & EV_READ) {
+        ev_io_set(watcher, watcher->fd, EV_WRITE);
+
+        auto *readBuffer = new ByteBuffer();
+
+        ssize_t readResult = recv(watcher->fd, readBuffer->bytes, DEFAULT_BUFFER_SIZE, 0);
+
+        if (readResult >= 0) {
+            printf("Receive message with size: %zi\n", readResult);
+            printf("Received message content: %s\n", readBuffer->bytes);
+        } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // TODO
+            printf("Error while reading EAGAIN or EWOULDBLOCK %zi\n", readResult);
+        } else {
+            printf("Error while reading%zi\n", readResult);
+        }
+
+        delete readBuffer;
+
+        ev_loop_destroy(loop);
+    }
+}
+
+
+// a unique_ptr is move-only
+auto u = make_unique<some_type>(some, parameters);
+
+// move the unique_ptr into the lambda
+go.run([u = move(u)]{do_something_with(u);});
+
+[a,&b] где a захвачена по значению, а b захвачена по ссылке.
+[this] захватывает указатель this по значению.
+[&] захват всех символов по ссылке
+[=] захват всех символов по значению
+[] ничего не захватывает
+
+std::weak_ptr<my_class> weak_obj(obj);
+
+  obj->on_complete([weak_obj]() {
+    auto obj = weak_obj.lock();
+    if (obj) {
+      obj->clean_something_up();
+    }
+  });
+
+
+  Я бы сказал так - главное преимущество using перед typedef - при работе с шаблонами. шаблоны. В частности, объявления псевдонимов могут быть шаблонизированы (и в этом случае они называются шаблонами псевдонимов), в то время как typedef — нет
+ */
