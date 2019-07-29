@@ -9,27 +9,28 @@
 #include <deque>
 #include <condition_variable>
 
-template<typename T>
-class BlockingQueue {
+namespace ccrt {
+    template<typename T>
+    class BlockingQueue {
 
-private:
-    std::mutex mMutex;
-    std::condition_variable mCondition;
-    std::deque<T> mQueue;
-    std::atomic_bool isStop { false };
+    private:
+        std::mutex mMutex;
+        std::condition_variable mCondition;
+        std::deque<T> mQueue;
+        std::atomic_bool isStop { false };
 
-public:
-    BlockingQueue() = default;
-    ~BlockingQueue() = default;
+    public:
+        BlockingQueue();
+        ~BlockingQueue();
 
-    BlockingQueue(const BlockingQueue&) = delete;
-    BlockingQueue& operator=(const BlockingQueue&) = delete;
+        BlockingQueue(const BlockingQueue&) = delete;
+        BlockingQueue& operator=(const BlockingQueue&) = delete;
 
-    void push(T &&t);
-    T pop();
-    void clear();
+        void push(T& t);
+        T& pop();
+        void clear();
+    };
 
-};
-
+}
 
 #endif //SOCKET_BLOCKINGQUEUE_H

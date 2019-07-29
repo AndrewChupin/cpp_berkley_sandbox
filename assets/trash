@@ -77,7 +77,7 @@ void TcpSocket::io(struct ev_loop *loop, ev_io *watcher, int events) {
         std::ifstream file(filePath, std::ifstream::binary);;
 
         if (!file.is_open()) {
-            printf("Can't open file\n");
+            printf("Can't launch file\n");
             // TODO CLOSE CONNECTION
             ev_loop_destroy(loop);
             return;

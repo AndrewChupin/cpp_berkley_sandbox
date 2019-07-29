@@ -5,7 +5,7 @@
 #include "ThreadPool.h"
 #include "BlockingQueue.cpp"
 
-ThreadPool::ThreadPool(uint32_t size) : mPoolSize(size) {
+ccrt::ThreadPool::ThreadPool(uint32_t size) : mPoolSize(size) {
     printf("INIT_ThreadPool\n");
     mThreadPool.reserve(mPoolSize);
 
@@ -22,22 +22,22 @@ ThreadPool::ThreadPool(uint32_t size) : mPoolSize(size) {
     }
 }
 
-ThreadPool::~ThreadPool() {
+ccrt::ThreadPool::~ThreadPool() {
     cancelAndJoin();
 }
 
-void ThreadPool::execute(Worker&& function) {
-    mWorkerQueue.push(std::move(function));
+void ccrt::ThreadPool::execute(Worker&& function) {
+    mWorkerQueue.push(function);
 }
 
-void ThreadPool::cancelAndJoin() {
+void ccrt::ThreadPool::cancelAndJoin() {
     isStop = true;
     mWorkerQueue.clear();
 
     join();
 }
 
-void ThreadPool::join() {
+void ccrt::ThreadPool::join() {
     for (auto &worker : mThreadPool) {
         if (worker.joinable()) {
             worker.join();

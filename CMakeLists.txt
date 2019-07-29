@@ -15,30 +15,28 @@ include_directories(/usr/local/Cellar/libev/4.24/include)
 
 add_executable(socket
         main.cpp
-        SocketConnection.cpp
-        SocketConnection.h
-        TcpSocket.cpp
-        TcpSocket.h
-        Connection.cpp
-        Connection.h
-        ConnectionPool.cpp
-        ConnectionPool.h
-        Logger.h
-        Definition.h
-        Message.cpp
-        Message.h
-        ByteBuffer.cpp
-        ByteBuffer.h
-        Request.cpp
-        Request.h
-        Config.cpp
-        Config.h
-        MessageQueue.h
-        MessageQueue.cpp
+        trash/SocketConnection.cpp
+        trash/SocketConnection.h
+        network/NetSocket.cpp
+        network/NetSocket.h
+        trash/Connection.cpp
+        trash/Connection.h
+        trash/ConnectionPool.cpp
+        trash/ConnectionPool.h
+        common/Logger.h
+        common/Definition.h
+        data/Message.cpp
+        data/Message.h
+        data/ByteBuffer.cpp
+        data/ByteBuffer.h
+        trash/Request.cpp
+        trash/Request.h
+        data/MessageQueue.h
+        data/MessageQueue.cpp
         concurrency/BlockingQueue.cpp
         concurrency/BlockingQueue.h
         concurrency/ThreadPool.cpp
-        concurrency/ThreadPool.h)
+        concurrency/ThreadPool.h network/NetAddress.h)
 
 link_directories(/usr/local/Cellar/libev/4.24/lib)
 target_link_libraries(socket /usr/local/Cellar/libev/4.24/lib/libev.a)

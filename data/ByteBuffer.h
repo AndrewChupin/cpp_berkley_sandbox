@@ -14,7 +14,14 @@ public:
     ByteBuffer();
     explicit ByteBuffer(uint32_t length);
     ByteBuffer(uint8_t *buffer, uint32_t len);
-    explicit ByteBuffer(std::string *data);
+    ByteBuffer(std::string *data);
+
+    ByteBuffer(ByteBuffer &&) = default;
+    ByteBuffer &operator=(ByteBuffer &&) = default;
+
+    ByteBuffer(const ByteBuffer &) = default;
+    ByteBuffer &operator=(const ByteBuffer &) = default;
+
     ~ByteBuffer();
 
     uint8_t *bytes;
