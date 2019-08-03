@@ -1,36 +1,15 @@
 #include <iostream>
-
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <pthread.h>
-#include "trash/SocketConnection.h"
-#include "common/Logger.h"
-#include "network/NetSocket.h"
 #include "concurrency/ThreadPool.h"
-#include <ev++.h>
-#include <fstream>
-
+#include "network/ConnectionPool.h"
 
 
 int main(int argc, char **argv) {
-    ccrt::ThreadPool pool { 3 };
+    //
 
-    net::NetAddress address { net::NetAddress::V4("192.168.0.240", 5000) };
-    net::NetSocket socket { address, net::NetProtocol::TCP, net::NetFlow::ONE_SHOT };
-
-    pool.execute([&] {
-        std::string message = "Single socket message";
-        socket.launch();
-        socket.write(std::make_shared<ByteBuffer>(&message));
-    });
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    pool.execute([&] {
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        socket.loop();
-    });
+    /*pool.execute([&] {
+        //socket.create();
+        //socket.write(std::make_shared<ByteBuffer>(&message));
+    });*/
 
 
     /*while (true) {
@@ -39,5 +18,23 @@ int main(int argc, char **argv) {
         std::getline(std::cin, str);
         socket.write(std::make_shared<ByteBuffer>(&str));
     }*/
+
+    //pool.join();
+
+    // net::NetAddress address { net::NetAddress::V4("192.168.0.240", 5001) };
+    // net::NetSocket socket { address, net::NetProtocol::TCP };
+
+    conc::ThreadPool pool { 3 };
+    auto conPool = std::make_shared<net::ConnectionPool>();
+
+    pool.execute([conPool] {
+        conPool->loop();
+    });
+
+    for(;;) {
+        conPool->create();
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    }
+
     pool.join();
 }

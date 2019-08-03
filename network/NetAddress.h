@@ -8,6 +8,7 @@
 #define SOCKET_NETADDRESS_H
 
 #include <string>
+#include "../common/Logger.h"
 
 namespace net {
 
@@ -38,7 +39,7 @@ namespace net {
 
     private:
         NetAddress(std::string ip, int32_t port, IpType ipType) : ip(std::move(ip)), port(port), ipType(ipType) {
-            printf("init NetAddress\n");
+            LOG_D("init NetAddress\n");
         }
     };
 }

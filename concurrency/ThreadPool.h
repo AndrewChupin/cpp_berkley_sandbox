@@ -13,7 +13,7 @@
 #include "BlockingQueue.h"
 
 
-namespace ccrt {
+namespace conc {
     static const auto DEFAULT_POOL_SIZE = std::thread::hardware_concurrency();
 
     class ThreadPool {

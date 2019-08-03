@@ -4,9 +4,10 @@
 
 #include "ThreadPool.h"
 #include "BlockingQueue.cpp"
+#include "../common/Logger.h"
 
-ccrt::ThreadPool::ThreadPool(uint32_t size) : mPoolSize(size) {
-    printf("INIT_ThreadPool\n");
+conc::ThreadPool::ThreadPool(uint32_t size) : mPoolSize(size) {
+    LOG_D("INIT_ThreadPool\n");
     mThreadPool.reserve(mPoolSize);
 
     for (int i = 0; i < mPoolSize; i++) {
@@ -22,22 +23,22 @@ ccrt::ThreadPool::ThreadPool(uint32_t size) : mPoolSize(size) {
     }
 }
 
-ccrt::ThreadPool::~ThreadPool() {
+conc::ThreadPool::~ThreadPool() {
     cancelAndJoin();
 }
 
-void ccrt::ThreadPool::execute(Worker&& function) {
+void conc::ThreadPool::execute(Worker&& function) {
     mWorkerQueue.push(function);
 }
 
-void ccrt::ThreadPool::cancelAndJoin() {
+void conc::ThreadPool::cancelAndJoin() {
     isStop = true;
     mWorkerQueue.clear();
 
     join();
 }
 
-void ccrt::ThreadPool::join() {
+void conc::ThreadPool::join() {
     for (auto &worker : mThreadPool) {
         if (worker.joinable()) {
             worker.join();

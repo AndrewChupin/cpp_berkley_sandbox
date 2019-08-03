@@ -8,6 +8,12 @@
 #include <thread>
 
 #define IS_DEBUG true;
-constexpr auto DEFAULT_BUFFER_SIZE = 1024 * 128;
+
+namespace def {
+
+    constexpr int64_t DEFAULT_BUFFER_SIZE = 1024 * 128;
+    constexpr int64_t DEFAULT_EVENT_TIMEOUT = 100;
+
+}
 
 #endif //SOCKET_DEFINITION_H

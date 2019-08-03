@@ -2,4 +2,9 @@
 // Created by Andrew Chupin on 2019-02-03.
 //
 
-#include "ConnectionPool.h"
+#include "Message.h"
+
+
+void Message::test() {
+
+}

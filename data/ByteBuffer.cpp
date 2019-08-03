@@ -8,13 +8,13 @@
 #include "../common/Logger.h"
 
 ByteBuffer::ByteBuffer() {
-    printf("ByteBuffer INIT\n");
-    bytes = new uint8_t[DEFAULT_BUFFER_SIZE];
-    length = DEFAULT_BUFFER_SIZE;
+    LOG_D("ByteBuffer INIT\n");
+    bytes = new uint8_t[def::DEFAULT_BUFFER_SIZE];
+    length = def::DEFAULT_BUFFER_SIZE;
 }
 
 ByteBuffer::ByteBuffer(uint32_t len) {
-    printf("ByteBuffer INIT by len\n");
+    LOG_D("ByteBuffer INIT by len\n");
     bytes = new uint8_t[len];
 
     if (bytes == nullptr) {
@@ -26,7 +26,7 @@ ByteBuffer::ByteBuffer(uint32_t len) {
 }
 
 ByteBuffer::ByteBuffer(uint8_t *buffer, uint32_t len) {
-    printf("ByteBuffer INIT by buffer and len\n");
+    LOG_D("ByteBuffer INIT by buffer and len\n");
     bytes = new uint8_t[len];
 
     if (bytes == nullptr) {
@@ -38,7 +38,7 @@ ByteBuffer::ByteBuffer(uint8_t *buffer, uint32_t len) {
 }
 
 ByteBuffer::ByteBuffer(std::string *data) {
-    printf("ByteBuffer INIT by str\n");
+    LOG_D("ByteBuffer INIT by str\n");
     ssize_t len = strlen(data->c_str());
 
     bytes = new uint8_t[len];
@@ -48,7 +48,7 @@ ByteBuffer::ByteBuffer(std::string *data) {
 }
 
 ByteBuffer::~ByteBuffer() {
-    printf("ByteBuffer DEINIT\n");
+    LOG_D("ByteBuffer DEINIT\n");
     if (bytes != nullptr) {
         delete[] bytes;
         bytes = nullptr;

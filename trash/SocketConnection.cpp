@@ -3,6 +3,7 @@
 //
 
 #include "SocketConnection.h"
+#include "../common/Logger.h"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -50,8 +51,7 @@ void SocketConnection::openConnection() {
 
     send(sock, message, sizeof(ad), 0);
     recv(sock, buf, sizeof(message), 0);
-    printf("Hello receive\n");
-    printf(buf);
+    LOG_D("Hello receive\n");
     close(sock);
 }
 

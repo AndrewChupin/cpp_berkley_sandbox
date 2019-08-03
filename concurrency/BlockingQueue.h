@@ -9,7 +9,7 @@
 #include <deque>
 #include <condition_variable>
 
-namespace ccrt {
+namespace conc {
     template<typename T>
     class BlockingQueue {
 
