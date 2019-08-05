@@ -17,7 +17,7 @@ namespace net {
     private:
         // Message buffer
         std::unique_ptr<net::NetSocket> mSocket = nullptr;
-        std::deque<std::shared_ptr<ByteBuffer>> mBuffers;
+        std::deque<std::shared_ptr<ByteBuffer>> mWriteQueue;
         ev::io mIo;
 
         void ioCallback(ev::io &watcher, int32_t events);
@@ -29,7 +29,7 @@ namespace net {
         void close();
 
         void attach(ev::default_loop& loop);
-        void writable();
+        void enqueue(std::shared_ptr<ByteBuffer>& buffer);
     };
 
 }

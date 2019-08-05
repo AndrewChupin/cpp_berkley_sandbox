@@ -6,12 +6,12 @@
 #include "../common/Definition.h"
 #include "../common/Logger.h"
 
-MessagePool* MessagePool::getInstance() {
+loop::MessagePool* loop::MessagePool::getInstance() {
     static MessagePool mPool;
     return &mPool;
 }
 
-void MessagePool::recycle(const std::shared_ptr<Message>& message) {
+void loop::MessagePool::recycle(const def::MessagePtr& message) {
     std::lock_guard<std::mutex> lock(mMutex);
     if (message != nullptr) {
         message->data = nullptr;
@@ -23,7 +23,7 @@ void MessagePool::recycle(const std::shared_ptr<Message>& message) {
     }
 }
 
-std::shared_ptr<Message> MessagePool::obtain() {
+def::MessagePtr loop::MessagePool::obtain() {
     std::lock_guard<std::mutex> lock(mMutex);
     if (mQueue.empty()) {
         LOG_D("MessagePool_obtain new Message\n");
@@ -39,7 +39,7 @@ std::shared_ptr<Message> MessagePool::obtain() {
     return front;
 }
 
-u_int64_t MessagePool::size() {
+u_int64_t loop::MessagePool::size() {
     std::lock_guard<std::mutex> lock(mMutex);
     return mQueue.size();
 }

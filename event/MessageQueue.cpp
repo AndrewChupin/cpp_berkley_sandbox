@@ -5,13 +5,13 @@
 #include "MessageQueue.h"
 
 
-MessageQueue::MessageQueue() = default;
+loop::MessageQueue::MessageQueue() = default;
 
-MessageQueue::~MessageQueue() {
+loop::MessageQueue::~MessageQueue() {
     clear();
 }
 
-void MessageQueue::put(const std::shared_ptr<Message>& message) {
+void loop::MessageQueue::put(const def::MessagePtr& message) {
     std::lock_guard<std::mutex> lock(mMutex);
     if (message == nullptr) {
         return;
@@ -19,7 +19,7 @@ void MessageQueue::put(const std::shared_ptr<Message>& message) {
     queue.push_back(message);
 }
 
-std::shared_ptr<Message> MessageQueue::pop() {
+def::MessagePtr loop::MessageQueue::pop() {
     std::lock_guard<std::mutex> lock(mMutex);
     if (queue.empty()) {
         return nullptr;
@@ -31,25 +31,25 @@ std::shared_ptr<Message> MessageQueue::pop() {
     return message;
 }
 
-bool MessageQueue::hasData() {
-    std::lock_guard<std::mutex> lock(mMutex);
-    return !queue.empty();
-}
-
-void MessageQueue::clear() {
-    std::lock_guard<std::mutex> lock(mMutex);
-    if (queue.empty()) {
-        return;
-    }
-
-    queue.clear();
-}
-
-std::shared_ptr<Message> MessageQueue::next() {
+def::MessagePtr loop::MessageQueue::next() {
     std::lock_guard<std::mutex> lock(mMutex);
     if (queue.empty()) {
         return nullptr;
     }
 
     return queue.front();
+}
+
+bool loop::MessageQueue::hasData() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    return !queue.empty();
+}
+
+void loop::MessageQueue::clear() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (queue.empty()) {
+        return;
+    }
+
+    queue.clear();
 }

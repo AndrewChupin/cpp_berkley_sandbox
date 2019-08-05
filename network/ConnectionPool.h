@@ -14,11 +14,11 @@ namespace net {
     class ConnectionPool {
 
     public:
+        ConnectionPool() = default;
         ~ConnectionPool();
 
         void create(const net::NetAddress& address);
         void loop();
-        void eventLoop();
         void asyncCallback(ev::async &watcher, int events);
 
         std::atomic_bool isFinished = { false };
@@ -28,9 +28,7 @@ namespace net {
         std::vector<std::shared_ptr<net::TcpConnection>> mActiveConnections;
 
         // Sync
-        MessageQueue mQueue;
         std::mutex mMutex;
-
 
         ev::default_loop mLoop;
         ev::async async;

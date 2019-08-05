@@ -8,22 +8,26 @@
 #include <cstdint>
 #include "../data/ByteBuffer.h"
 
-class Message {
+namespace loop {
 
-public:
-    ~Message() = default;
+    class Message {
 
-    std::shared_ptr<ByteBuffer> data = nullptr;
-    time_t time = 0;
+    public:
+        ~Message() = default;
 
-    void test();
+        std::shared_ptr<ByteBuffer> data = nullptr;
+        time_t time = 0;
 
-    // FRIENDS
-    friend class MessagePool;
+        void test();
 
-private:
-    Message() = default;
+        // FRIENDS
+        friend class MessagePool;
 
-};
+    private:
+        Message() = default;
+
+    };
+
+}
 
 #endif //SOCKET_MESSAGE_H

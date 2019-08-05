@@ -9,24 +9,29 @@
 #include <deque>
 #include <mutex>
 #include "Message.h"
+#include "../common/Logger.h"
 
-class MessageQueue {
+namespace loop {
 
-public:
-    MessageQueue();
-    ~MessageQueue();
+    class MessageQueue {
 
-    void put(const std::shared_ptr<Message>& message);
-    std::shared_ptr<Message> pop();
-    std::shared_ptr<Message> next();
+    public:
+        MessageQueue();
+        ~MessageQueue();
 
-    bool hasData();
-    void clear();
+        void put(const def::MessagePtr& message);
+        def::MessagePtr pop();
+        def::MessagePtr next();
 
-private:
-    std::mutex mMutex;
-    std::deque<std::shared_ptr<Message>> queue;
+        bool hasData();
+        void clear();
 
-};
+    private:
+        std::mutex mMutex;
+        std::deque<std::shared_ptr<Message>> queue;
+
+    };
+
+}
 
 #endif //SOCKET_MESSAGEQUEUE_H

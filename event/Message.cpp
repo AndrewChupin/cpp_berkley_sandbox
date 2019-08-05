@@ -5,6 +5,6 @@
 #include "Message.h"
 
 
-void Message::test() {
+void loop::Message::test() {
 
 }

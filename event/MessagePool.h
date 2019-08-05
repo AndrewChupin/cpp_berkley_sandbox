@@ -8,32 +8,37 @@
 #include <mutex>
 #include <deque>
 #include "Message.h"
+#include "../common/Logger.h"
 
 
-class MessagePool {
+namespace loop {
 
-public:
+    class MessagePool {
 
-    MessagePool(const MessagePool&) = delete;
-    MessagePool& operator= (const MessagePool&) = delete;
+    public:
 
-    MessagePool(const MessagePool&&) = delete;
-    MessagePool& operator= (MessagePool&&) = delete;
+        MessagePool(const MessagePool&) = delete;
+        MessagePool& operator= (const MessagePool&) = delete;
 
-    static MessagePool* getInstance();
+        MessagePool(const MessagePool&&) = delete;
+        MessagePool& operator= (MessagePool&&) = delete;
 
-    void recycle(const std::shared_ptr<Message>& message);
-    std::shared_ptr<Message> obtain();
-    u_int64_t size();
+        static MessagePool* getInstance();
 
-private:
-    MessagePool() = default;
-    ~MessagePool() = default;
+        void recycle(const def::MessagePtr& message);
+        std::shared_ptr<loop::Message> obtain();
+        u_int64_t size();
 
-    std::mutex mMutex;
-    std::deque<std::shared_ptr<Message>> mQueue;
+    private:
+        MessagePool() = default;
+        ~MessagePool() = default;
 
-};
+        std::mutex mMutex;
+        std::deque<std::shared_ptr<Message>> mQueue;
+
+    };
+
+}
 
 
 #endif //SOCKET_MESSAGEPOOL_H
