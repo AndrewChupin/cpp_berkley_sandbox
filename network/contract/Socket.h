@@ -11,9 +11,14 @@
 class Socket {
 
 public:
+    virtual int32_t descriptor() = 0;
+
+    virtual int32_t create() = 0;
+    virtual void destroy() = 0;
+
     virtual bool isConnected() = 0;
-    virtual void write(uint8_t* data, uint32_t size) = 0;
-    virtual void write(const std::shared_ptr<ByteBuffer>& buf) = 0;
+    virtual bool write(const std::shared_ptr<ByteBuffer>& buf) = 0;
+    virtual bool read(std::shared_ptr<ByteBuffer>& buff) = 0;
 
 };
 

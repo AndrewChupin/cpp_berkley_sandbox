@@ -6,10 +6,10 @@
 #define NET_SOCKET_SOCKET_H
 
 #include <string>
-#include "../event/MessageQueue.h"
-#include "NetAddress.h"
-#include "../data/ByteBuffer.h"
-#include "contract/Socket.h"
+#include "../../event/MessageQueue.h"
+#include "../NetAddress.h"
+#include "../../data/ByteBuffer.h"
+#include "../contract/Socket.h"
 #include <ev++.h>
 #include <deque>
 
@@ -23,20 +23,17 @@ namespace net {
     class NetSocket : public Socket {
 
     private:
+        // Host connection
+        int32_t mSocket;
+
         // Host
         NetAddress mAddress;
         NetProtocol mNetProtocol;
 
-        // Host connection
-        int mSocket;
-
-        // Message buffer
-        std::deque<std::shared_ptr<ByteBuffer>> mBuffers;
-
-        void write();
-        void read();
+        bool hasSocketError();
 
     public:
+
         explicit NetSocket(NetAddress address, NetProtocol netProtocol = NetProtocol::TCP);
         ~NetSocket() = default;
 
@@ -46,16 +43,15 @@ namespace net {
         NetSocket &operator=(NetSocket const &) = delete;
         NetSocket &operator=(NetSocket &&) = delete;
 
+        int32_t descriptor() override;
 
-        void create();
-        void destroy();
+        int32_t create() override;
+        void destroy() override;
 
         bool isConnected() override;
 
-        void write(uint8_t* data, uint32_t size) override;
-        void write(const std::shared_ptr<ByteBuffer>& buf) override;
-
-        int32_t checkSocketError();
+        bool write(const std::shared_ptr<ByteBuffer>& buf) override;
+        bool read(std::shared_ptr<ByteBuffer>& buff) override;
     };
 }
 

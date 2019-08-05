@@ -29,11 +29,11 @@ namespace net {
         NetAddress(NetAddress&&) = default;
         NetAddress& operator=(NetAddress&&) = default;
 
-        static net::NetAddress V4(const std::string& ip, int32_t port) {
+        static net::NetAddress v4(const std::string &ip, int32_t port) {
             return NetAddress(ip, port, IpType::V4);
         }
 
-        static net::NetAddress V6(const std::string& ip, int32_t port) {
+        static net::NetAddress v6(const std::string &ip, int32_t port) {
             return NetAddress(ip, port, IpType::V6);
         }
 

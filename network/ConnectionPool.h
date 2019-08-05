@@ -6,7 +6,8 @@
 #define SOCKET_CONNECTIONPOOL_H
 
 #include <vector>
-#include "NetSocket.h"
+#include "transport/NetSocket.h"
+#include "transport/TcpConnection.h"
 
 namespace net {
 
@@ -15,15 +16,24 @@ namespace net {
     public:
         ~ConnectionPool();
 
-        void create();
+        void create(const net::NetAddress& address);
         void loop();
+        void eventLoop();
+        void asyncCallback(ev::async &watcher, int events);
 
         std::atomic_bool isFinished = { false };
 
     private:
-        std::vector<std::shared_ptr<net::NetSocket>> mSockets;
-        MessageQueue mQueue;
+        // Connections
+        std::vector<std::shared_ptr<net::TcpConnection>> mActiveConnections;
 
+        // Sync
+        MessageQueue mQueue;
+        std::mutex mMutex;
+
+
+        ev::default_loop mLoop;
+        ev::async async;
     };
 
 }

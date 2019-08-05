@@ -18,10 +18,9 @@ add_executable(
         main.cpp
         trash/SocketConnection.cpp
         trash/SocketConnection.h
-        network/NetSocket.cpp
-        network/NetSocket.h
-        trash/Connection.cpp
-        trash/Connection.h
+        network/transport/NetSocket.cpp
+        network/transport/NetSocket.h
+        network/contract/Connection.h
         network/ConnectionPool.cpp
         network/ConnectionPool.h
         common/Logger.h
@@ -42,7 +41,7 @@ add_executable(
         network/contract/Socket.h
         network/NetFlow.h
         event/MessagePool.cpp
-        event/MessagePool.h common/Util.h)
+        event/MessagePool.h common/Util.h network/transport/HttpConnection.cpp network/transport/HttpConnection.h network/transport/TcpConnection.cpp network/transport/TcpConnection.h network/transport/UdpConnection.cpp network/transport/UdpConnection.h network/contract/Callback.h)
 
 link_directories(/usr/local/Cellar/libev/4.24/lib)
 target_link_libraries(socket /usr/local/Cellar/libev/4.24/lib/libev.a)

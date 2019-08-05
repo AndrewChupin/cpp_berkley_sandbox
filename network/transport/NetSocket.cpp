@@ -8,9 +8,9 @@
 #include <fstream>
 #include <iostream>
 #include "NetSocket.h"
-#include "../common/Definition.h"
-#include "../common/Logger.h"
-#include "../data/ByteBuffer.h"
+#include "../../common/Definition.h"
+#include "../../common/Logger.h"
+#include "../../data/ByteBuffer.h"
 
 //
 // Created by Andrew Chupin on 2019-02-03.
@@ -23,10 +23,11 @@ net::NetSocket::NetSocket(
     LOG_D("INIT_TcpSocket\n");
 }
 
-void net::NetSocket::create() {
+int32_t net::NetSocket::create() {
     if (mNetProtocol == NetProtocol::TCP) {
         mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     }
+
     else if (mNetProtocol == NetProtocol::UDP) {
         mSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_UDP);
     }
@@ -34,7 +35,7 @@ void net::NetSocket::create() {
     if (mSocket < 0) {
         LOG_D("ENONBLOCKrror while creating socket\n");
         destroy();
-        return;
+        return -1;
     }
 
     struct sockaddr* socketAddress = nullptr;
@@ -47,7 +48,7 @@ void net::NetSocket::create() {
 
         if (inet_pton(AF_INET, mAddress.ip.c_str(), &(addressV4.sin_addr.s_addr)) != 1) {
             LOG_D("Connection not ipv4\n");
-            return;
+            return -1;
         }
 
         socketAddress = reinterpret_cast<sockaddr*>(&addressV4);
@@ -62,7 +63,7 @@ void net::NetSocket::create() {
 
         if (inet_pton(AF_INET6, mAddress.ip.c_str(), &(addressV6.sin6_addr.s6_addr)) != 1) {
             LOG_D("Connection not ipv6\n");
-            return;
+            return -1;
         }
 
         socketAddress = reinterpret_cast<sockaddr*>(&addressV6);
@@ -80,76 +81,21 @@ void net::NetSocket::create() {
     if (fcntl(mSocket, F_SETFL, O_NONBLOCK) == -1) {
         LOG_D("connection set O_NONBLOCK failed\n");
         destroy();
-        return;
+        return -1;
     }
 
     if (connect(mSocket, socketAddress, size) == -1 && errno != EINPROGRESS) {
         LOG_D("cannot connect to ip\n");
         destroy();
-        return;
+        return -1;
     }
 
-    if (socketAddress != nullptr) {
-        delete(socketAddress);
-    }
+    //if (socketAddress != nullptr) {
+    //    delete(socketAddress);
+    //}
 
     LOG_D("connection created success\n");
-}
-
-void net::NetSocket::write(const std::shared_ptr<ByteBuffer>& buf) {
-    mBuffers.push_back(buf);
-}
-
-void net::NetSocket::write(uint8_t* data, uint32_t size) {
-    //mBuffers.emplace_back(data, size);
-}
-
-void net::NetSocket::write() {
-    while (!mBuffers.empty()) {
-
-        auto buff = mBuffers.front();
-        mBuffers.pop_front();
-
-        ssize_t writeResult = send(mSocket, buff->bytes, buff->size(), 0);
-
-        if (writeResult >= 0) {
-            LOG_D("Sent message with size: %zi\n", writeResult);
-            LOG_D("Sent message content: %s\n", buff->bytes);
-        } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            LOG_D("Error while reading EAGAIN or EWOULDBLOCK %zi\n", writeResult);
-            close(mSocket);
-            return;
-        } else {
-            LOG_D("Error while sending%zi\n", writeResult);
-            close(mSocket);
-            return;
-        }
-    }
-}
-
-void net::NetSocket::read() {
-    auto* readBuffer = new ByteBuffer();
-
-    ssize_t readResult = recv(mSocket, readBuffer->bytes, def::DEFAULT_BUFFER_SIZE, 0);
-
-    if (readResult >= 0) {
-        LOG_D("Receive message with size: %zi\n", readResult);
-        LOG_D("Received message content: %s\n", readBuffer->bytes);
-
-        close(mSocket);
-    } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        LOG_D("Error while reading EAGAIN or EWOULDBLOCK %zi\n", readResult);
-        close(mSocket);
-    } else {
-        LOG_D("Error while reading %zi\n", readResult);
-        close(mSocket);
-    }
-
-    delete readBuffer;
-}
-
-bool net::NetSocket::isConnected() {
-    return mSocket > 0;
+    return 0;
 }
 
 void net::NetSocket::destroy() {
@@ -160,16 +106,84 @@ void net::NetSocket::destroy() {
     }
 }
 
-int32_t net::NetSocket::checkSocketError() {
-    if (mSocket < 0) {
-        return true;
+int32_t net::NetSocket::descriptor() {
+    return mSocket;
+}
+
+bool net::NetSocket::write(const std::shared_ptr<ByteBuffer>& buf) {
+    LOG_D("net::NetSocket::write\n");
+
+    if (!isConnected()) {
+        return false;
     }
+
+    LOG_D("net::NetSocket::write and connected\n");
+
+    ssize_t writeResult = send(mSocket, buf->bytes, buf->size(), 0);
+
+    if (writeResult >= 0) {
+        LOG_D("Sent message with size: %zi\n", writeResult);
+        LOG_D("Sent message content: %s\n", buf->bytes);
+        return true;
+    } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        LOG_D("Error while reading EAGAIN or EWOULDBLOCK %zi\n", writeResult);
+        destroy();
+    } else {
+        LOG_D("Error while sending%zi\n", writeResult);
+        destroy();
+    }
+
+    return false;
+}
+
+
+bool net::NetSocket::read(std::shared_ptr<ByteBuffer>& buff) {
+    LOG_D("net::NetSocket::read\n");
+
+    if (!isConnected()) {
+        return false;
+    }
+
+    LOG_D("net::NetSocket::read and connected\n");
+
+    auto buffer = std::make_shared<ByteBuffer>();
+
+    ssize_t readResult = recv(mSocket, buffer->bytes, def::DEFAULT_BUFFER_SIZE, 0);
+
+    if (readResult >= 0) {
+        LOG_D("Receive message with size: %zi\n", readResult);
+        LOG_D("Received message content: %s\n", buffer->bytes);
+        return true;
+    } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        LOG_D("Error while reading EAGAIN or EWOULDBLOCK %zi\n", readResult);
+        destroy();
+    } else {
+        LOG_D("Error while reading %zi\n", readResult);
+        destroy();
+    }
+
+    return false;
+}
+
+bool net::NetSocket::hasSocketError() {
     int ret;
     int code;
     socklen_t len = sizeof(int);
     ret = getsockopt(mSocket, SOL_SOCKET, SO_ERROR, &code, &len);
+
     if (ret != 0 || code != 0) {
         LOG_D("socket error 0x%x code 0x%x", ret, code);
     }
+
     return (ret || code) != 0;
+}
+
+bool net::NetSocket::isConnected() {
+    bool hasError = hasSocketError();
+
+    if (hasError) {
+        destroy();
+    }
+
+    return !hasError;
 }

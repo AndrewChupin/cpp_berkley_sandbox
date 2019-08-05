@@ -9,24 +9,42 @@
 #include "../common/Logger.h"
 
 net::ConnectionPool::~ConnectionPool() {
-    for (const auto& socket : mSockets) {
-        socket->destroy();
+    for (const auto& socket : mActiveConnections) {
+        socket->close();
     }
 
     mQueue.clear();
-    mSockets.clear();
+    mActiveConnections.clear();
 }
 
-void net::ConnectionPool::create() {
-    /*const auto& socket = std::make_shared<net::NetSocket>();
-    socket->create();
-    mSockets.push_back(socket);*/
-    auto message = MessagePool::getInstance()->obtain();
-    message->time = util::now() + 2000;
-    mQueue.put(message);
+void net::ConnectionPool::create(const net::NetAddress& address) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    auto socket = std::make_shared<net::TcpConnection>();
+    socket->connect(address);
+    socket->attach(mLoop);
+    mActiveConnections.push_back(socket);
+    if (address.port == 5001) {
+        socket->writable();
+        async.send();
+    }
+}
+
+void net::ConnectionPool::asyncCallback(ev::async &watcher, int events) {
+
 }
 
 void net::ConnectionPool::loop() {
+    async.set<ConnectionPool, &ConnectionPool::asyncCallback>(this);
+    async.start();
+
+    while (true) {
+        printf("loop\n");
+        mLoop.run(0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+void net::ConnectionPool::eventLoop() {
     int64_t now;
     int64_t nextTimeout;
     std::shared_ptr<Message> nextMessage;
